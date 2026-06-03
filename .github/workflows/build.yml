@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Combine and clean M3U files
         run: |
@@ -32,7 +32,7 @@ jobs:
           cat master_utf8.m3u >> master.m3u
 
       - name: Upload master.m3u artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: master.m3u
           path: master.m3u
