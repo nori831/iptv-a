@@ -1,0 +1,46 @@
+name: Build master.m3u
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Combine and clean M3U files
+        run: |
+          echo "#EXTM3U" > master.m3u
+          cat japan.m3u taiwan.m3u china.m3u >> master_raw.m3u
+
+          # Remove duplicate lines
+          awk '!seen[$0]++' master_raw.m3u > master_nodup.m3u
+
+          # Remove empty lines
+          sed '/^\s*$/d' master_nodup.m3u > master_clean.m3u
+
+          # Ensure UTF-8 encoding
+          iconv -f utf-8 -t utf-8 master_clean.m3u -o master_utf8.m3u
+
+          # Append cleaned content to master.m3u
+          cat master_utf8.m3u >> master.m3u
+
+      - name: Upload master.m3u artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: master.m3u
+          path: master.m3u
+
+      - name: Commit and push master.m3u
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add master.m3u
+          git commit -m "Auto-build master.m3u" || echo "No changes to commit"
+          git push
