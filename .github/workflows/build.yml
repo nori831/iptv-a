@@ -1,5 +1,8 @@
 name: Build master.m3u
 
+permissions:
+  contents: write
+
 on:
   push:
     branches:
